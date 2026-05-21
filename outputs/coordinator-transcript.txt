@@ -1,0 +1,19 @@
+No dedicated docx skill found, but python-docx is available. Let me kick off all four specialists in parallel now.Legal review received. Logging and waiting on the other three specialists.Technical fit received. Two of four in. Waiting on Pricing and Competitive Intel.Competitive intel received. Three of four in. Waiting on Pricing.All four specialists in. Synthesizing now and building the branded Word document.Document built successfully — 11 tables, full structure intact. Final deliverable is at `/mnt/session/outputs/BTS-Synthetic_Acme_RFP_Response.docx`.
+
+## Deal Desk — Final Summary
+
+All four specialists reported in. Synthesis went into a branded BTS-Synthetic Word document covering Acme's required response structure.
+
+**Headline positions taken in the proposal:**
+
+- **Technical fit: HIGH.** Ten of eleven requirements full-fit. Lead with the Power BI DirectQuery adapter, native EU residency, and open Delta/Iceberg/Parquet on Azure Blob. Honest about ~250ms–1s streaming-query latency as the one partial-fit.
+
+- **Commercial: $639,600/yr Year 1–3 at 22% discount,** rising to $661,200 by Year 5. 5-year TCV $3.23M. **99.99% SLA priced in transparently** at $100K/yr — flagged proactively, not deferred. We refuse the 35% demand (anchored on Globex 18% / Initech 15% / Stark 28%); refuse MFN outright; counter Net 90 to Net 60; counter 30-day termination to 90.
+
+- **Legal: three red lines stated plainly.** Uncapped breach liability → 24-month cap. Full IP assignment → perpetual licence-back (Stark precedent). Without-notice audits → 2×/yr with 30-day notice. SLA-miss "immediate termination" softened to service credits + 3 consecutive months of material breach.
+
+- **Competitive: Fabric is the top threat,** Databricks second, Snowflake third. Positioning hammer: Fabric's 99.95% SLA + 18-month maturity vs. our 99.99% on a tested 250K events/sec engine. Do not chase Databricks' discount precedent — compete on TCO.
+
+- **Risks called out:** Teradata cutover against the 2027 horizon, sub-100ms streaming use cases scoped in week 1, and contract slippage against the 2026-06-30 award date (counter-position pack is signing-ready on Negotiate items).
+
+**Deal stance:** Chase selectively. If Acme moves on MFN, liability cap, and Net 60, this closes in the $635–$640K/yr band. If they hold MFN + uncapped + Net 90 as a package, walk — the Pied Piper lesson applies.
