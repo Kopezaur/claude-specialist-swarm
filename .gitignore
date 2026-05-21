@@ -3,3 +3,13 @@
 
 # Microsoft Office lock files (created while a doc is open)
 ~$*
+
+# Claude Code per-machine state — regenerated on every run
+.claude/audit.log
+.claude/scheduled_tasks.lock
+
+# Python virtualenv
+.venv/
+
+# Local run logs from run_deal_desk.py | tee
+outputs-*.log
