@@ -1,2 +1,5 @@
 # Claude Code local settings — contains the API key, never commit
 .claude/settings.local.json
+
+# Microsoft Office lock files (created while a doc is open)
+~$*
