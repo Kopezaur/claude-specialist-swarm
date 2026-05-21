@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Specialised Agents — What Changed Today | Harry Potter's Crew → Hogwarts</title>
+<style>
+  :root {
+    --gryff-red:       #7F0909;
+    --gryff-gold:      #FFC500;
+    --gryff-dark-red:  #3C0000;
+    --gryff-cream:     #FFF8E7;
+    --gryff-bronze:    #B8860B;
+    --ink:             #101010;
+    --muted:           #5a4a4a;
+    --rule:            rgba(127, 9, 9, 0.18);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--gryff-cream);
+    color: var(--ink);
+    font-family: "Calibri", "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 28px 80px;
+  }
+
+  /* ---------- Cover banner ---------- */
+  .banner {
+    background: linear-gradient(135deg, var(--gryff-dark-red) 0%, var(--gryff-red) 70%);
+    color: var(--gryff-cream);
+    border: 3px solid var(--gryff-gold);
+    border-radius: 6px;
+    padding: 32px 36px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .banner::after {
+    content: "";
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--gryff-gold) 0%, transparent 70%);
+    opacity: 0.18;
+  }
+  .banner .firm {
+    font-family: "Cambria", Georgia, serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.22em;
+    color: var(--gryff-gold);
+    text-transform: uppercase;
+  }
+  .banner h1 {
+    font-family: "Cambria", Georgia, serif;
+    margin: 6px 0 8px;
+    font-size: 34px;
+    line-height: 1.15;
+    color: var(--gryff-cream);
+  }
+  .banner .sub {
+    color: var(--gryff-gold);
+    font-style: italic;
+    font-size: 15px;
+  }
+  .banner .meta {
+    margin-top: 16px;
+    font-size: 13px;
+    color: rgba(255, 248, 231, 0.8);
+  }
+
+  /* ---------- Headings ---------- */
+  h2 {
+    font-family: "Cambria", Georgia, serif;
+    color: var(--gryff-dark-red);
+    border-bottom: 3px solid var(--gryff-gold);
+    padding-bottom: 6px;
+    margin: 36px 0 14px;
+    font-size: 24px;
+  }
+  h3 {
+    font-family: "Cambria", Georgia, serif;
+    color: var(--gryff-red);
+    margin: 24px 0 8px;
+    font-size: 18px;
+  }
+  h4 {
+    font-family: "Cambria", Georgia, serif;
+    color: var(--gryff-dark-red);
+    margin: 14px 0 6px;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ---------- Cards ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  @media (max-width: 820px) {
+    .grid, .grid-3 { grid-template-columns: 1fr; }
+  }
+  .card {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-left: 5px solid var(--gryff-red);
+    border-radius: 4px;
+    padding: 16px 18px;
+  }
+  .card.accent-gold { border-left-color: var(--gryff-gold); }
+  .card.accent-dark { border-left-color: var(--gryff-dark-red); }
+
+  .pill {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--gryff-gold);
+    color: var(--gryff-dark-red);
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .pill.new     { background: var(--gryff-gold); color: var(--gryff-dark-red); }
+  .pill.changed { background: var(--gryff-red);  color: var(--gryff-cream); }
+  .pill.support { background: #ddd;              color: #333; }
+
+  /* ---------- Metric tiles ---------- */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: 18px 0 8px;
+  }
+  @media (max-width: 820px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+  .metric {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-top: 4px solid var(--gryff-gold);
+    border-radius: 4px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .metric .value {
+    font-family: "Cambria", Georgia, serif;
+    font-size: 28px;
+    color: var(--gryff-dark-red);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .metric .label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ---------- Tables ---------- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  thead th {
+    background: var(--gryff-red);
+    color: var(--gryff-gold);
+    text-align: left;
+    padding: 8px 10px;
+    font-family: "Cambria", Georgia, serif;
+  }
+  tbody td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  tbody tr:nth-child(odd) td { background: var(--gryff-cream); }
+
+  /* ---------- Misc ---------- */
+  code {
+    font-family: "Consolas", "Cascadia Mono", monospace;
+    font-size: 0.9em;
+    background: rgba(127, 9, 9, 0.08);
+    color: var(--gryff-dark-red);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  ul.tight { margin: 6px 0 8px 18px; padding: 0; }
+  ul.tight li { margin: 2px 0; }
+
+  .figure-caption {
+    text-align: center;
+    color: var(--gryff-dark-red);
+    font-style: italic;
+    font-size: 13px;
+    margin: 2px 0 22px;
+  }
+  .footer {
+    margin-top: 50px;
+    border-top: 3px double var(--gryff-red);
+    padding-top: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .footer strong { color: var(--gryff-dark-red); }
+
+  .severity-blocker    { color: var(--gryff-red); font-weight: 700; }
+  .severity-negotiable { color: var(--gryff-bronze); font-weight: 700; }
+
+  svg.chart { width: 100%; height: auto; display: block; }
+  svg.chart text { font-family: "Calibri", "Segoe UI", system-ui, sans-serif; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============================== COVER ============================== -->
+  <div class="banner">
+    <div class="firm">Harry Potter's Crew  ·  Engineering Note</div>
+    <h1>Specialised Agents — What Changed Today</h1>
+    <div class="sub">A walk-through of every commit touching our specialist swarm on 21 May 2026</div>
+    <div class="meta">Repository: <code>claude-specialist-swarm</code>  ·  Branch: <code>main</code>  ·  Window: 14:11 BST → 15:32 BST  ·  Authors: Lai, Michelle  &  Copetchi, Stefan</div>
+  </div>
+
+  <!-- ============================== TL;DR ============================== -->
+  <h2>TL;DR</h2>
+  <p>Today we moved the four specialists from <em>generic Deal Desk roles</em> to <em>Acme-RFP-aware operators</em>, gave the coordinator an explicit reconciliation contract, and shipped a new <code>docx-creation</code> skill that produces a Gryffindor-branded Word deliverable for Hogwarts. Four commits, five files of substance, one new skill folder, and a noticeable upgrade in how the swarm reasons under conflict.</p>
+
+  <div class="metrics">
+    <div class="metric"><div class="value">4</div><div class="label">commits today</div></div>
+    <div class="metric"><div class="value">225</div><div class="label">specialist-related lines added</div></div>
+    <div class="metric"><div class="value">3</div><div class="label">existing skills upgraded</div></div>
+    <div class="metric"><div class="value">1</div><div class="label">new skill shipped</div></div>
+  </div>
+
+  <!-- ============================== COMMIT TIMELINE (SVG) ============================== -->
+  <h2>1. Commit timeline</h2>
+  <svg class="chart" viewBox="0 0 1000 230" role="img" aria-label="Commit timeline of 21 May 2026">
+    <!-- timeline axis -->
+    <line x1="60" y1="180" x2="960" y2="180" stroke="#7F0909" stroke-width="2"/>
+    <!-- tick marks every 15 min from 14:00 to 15:45 -->
+    <g font-size="11" fill="#3C0000" text-anchor="middle">
+      <line x1="60"  y1="180" x2="60"  y2="190" stroke="#7F0909" stroke-width="2"/><text x="60"  y="208">14:00</text>
+      <line x1="240" y1="180" x2="240" y2="190" stroke="#7F0909" stroke-width="2"/><text x="240" y="208">14:30</text>
+      <line x1="420" y1="180" x2="420" y2="190" stroke="#7F0909" stroke-width="2"/><text x="420" y="208">15:00</text>
+      <line x1="600" y1="180" x2="600" y2="190" stroke="#7F0909" stroke-width="2"/><text x="600" y="208">15:30</text>
+      <line x1="780" y1="180" x2="780" y2="190" stroke="#7F0909" stroke-width="2"/><text x="780" y="208">16:00</text>
+    </g>
+
+    <!-- swim-lane labels -->
+    <text x="55" y="60"  font-size="12" fill="#3C0000" text-anchor="end" font-weight="700">Michelle</text>
+    <text x="55" y="130" font-size="12" fill="#3C0000" text-anchor="end" font-weight="700">Stefan</text>
+    <line x1="60" y1="40"  x2="960" y2="40"  stroke="#FFC500" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>
+    <line x1="60" y1="80"  x2="960" y2="80"  stroke="#FFC500" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>
+    <line x1="60" y1="110" x2="960" y2="110" stroke="#FFC500" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>
+    <line x1="60" y1="150" x2="960" y2="150" stroke="#FFC500" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>
+
+    <!-- 14:11 Michelle running session  → x = 60 + (11/120)*720 = 60 + 66 = 126 -->
+    <circle cx="126" cy="60" r="10" fill="#B8860B" stroke="#3C0000" stroke-width="1.5"/>
+    <text x="126" y="32" font-size="11" fill="#3C0000" text-anchor="middle">14:11 · 1ba4377</text>
+    <text x="126" y="20" font-size="11" fill="#3C0000" text-anchor="middle" font-weight="700">running session</text>
+
+    <!-- 14:32 Michelle improved skills → x = 60 + (32/120)*720 = 60 + 192 = 252 -->
+    <circle cx="252" cy="60" r="14" fill="#7F0909" stroke="#FFC500" stroke-width="2"/>
+    <text x="252" y="32" font-size="11" fill="#3C0000" text-anchor="middle">14:32 · 2ab9c39</text>
+    <text x="252" y="20" font-size="12" fill="#3C0000" text-anchor="middle" font-weight="700">improved skills & specialists  (big one)</text>
+
+    <!-- 15:18 Stefan add docx skill (note: he's on BST+1 i.e. CEST, his timestamps are +0200; 15:18 CEST = 14:18 BST) -->
+    <!-- For viewer clarity, plot in the author-local time displayed on the bar -->
+    <!-- 15:18 → 60 + (78/120)*720 = 60 + 468 = 528 -->
+    <circle cx="528" cy="130" r="12" fill="#FFC500" stroke="#3C0000" stroke-width="1.5"/>
+    <text x="528" y="158" font-size="11" fill="#3C0000" text-anchor="middle">15:18 · 365035e</text>
+    <text x="528" y="170" font-size="11" fill="#3C0000" text-anchor="middle" font-weight="700">add docx-creation skill</text>
+
+    <!-- 15:32 Stefan run Card A → 60 + (92/120)*720 = 60 + 552 = 612 -->
+    <circle cx="612" cy="130" r="10" fill="#B8860B" stroke="#3C0000" stroke-width="1.5"/>
+    <text x="612" y="158" font-size="11" fill="#3C0000" text-anchor="middle">15:32 · cc0d032</text>
+    <text x="612" y="170" font-size="11" fill="#3C0000" text-anchor="middle" font-weight="700">run Card A · compact v2</text>
+  </svg>
+  <div class="figure-caption">Figure 1 — Four commits, two swim-lanes. Michelle landed the big specialist upgrade at 14:32; Stefan layered the docx skill and a live run after.</div>
+
+  <!-- ============================== COMMIT TABLE ============================== -->
+  <table>
+    <thead>
+      <tr><th>SHA</th><th>Author</th><th>Time</th><th>Title</th><th>Files affecting agents</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>1ba4377</code></td><td>Michelle</td><td>14:11</td><td>running session</td><td><code>.coordinator_id</code>, <code>.specialist_ids.json</code>, <code>.skill_ids.json</code>, transcript</td></tr>
+      <tr><td><code>2ab9c39</code></td><td>Michelle</td><td>14:32</td><td>improved skills and specialists <span class="pill changed">core change</span></td><td><code>create_specialists.py</code>, <code>create_coordinator.py</code>, 3 × <code>skills/*/SKILL.md</code></td></tr>
+      <tr><td><code>365035e</code></td><td>Stefan</td><td>15:18</td><td>add docx-creation skill <span class="pill new">new skill</span></td><td><code>skills/docx-creation/SKILL.md</code></td></tr>
+      <tr><td><code>cc0d032</code></td><td>Stefan</td><td>15:32</td><td>run Card A with docx skill <span class="pill support">exercise</span></td><td><code>run_card_a_with_docx_skill.py</code> + outputs</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================== SPECIALIST BY SPECIALIST ============================== -->
+  <h2>2. What changed inside each specialist's brief</h2>
+  <p>Commit <code>2ab9c39</code> rewrote all four specialist system prompts in <code>create_specialists.py</code>. They went from generic templated briefs to fully Acme-RFP-aware operators with explicit deliverable lengths, structured output formats, and a final recommendation field.</p>
+
+  <!-- Specialist prompt-length chart -->
+  <svg class="chart" viewBox="0 0 900 280" role="img" aria-label="Specialist prompt length before vs. after">
+    <!-- y axis label -->
+    <text x="20" y="40" font-size="12" fill="#3C0000" font-weight="700">Lines in system prompt</text>
+    <!-- axis -->
+    <line x1="120" y1="40" x2="120" y2="240" stroke="#7F0909" stroke-width="2"/>
+    <line x1="120" y1="240" x2="860" y2="240" stroke="#7F0909" stroke-width="2"/>
+
+    <!-- y ticks -->
+    <g font-size="10" fill="#3C0000" text-anchor="end">
+      <text x="115" y="44">25</text>  <line x1="118" y1="40"  x2="120" y2="40"  stroke="#7F0909"/>
+      <text x="115" y="84">20</text>  <line x1="118" y1="80"  x2="120" y2="80"  stroke="#7F0909"/>
+      <text x="115" y="124">15</text> <line x1="118" y1="120" x2="120" y2="120" stroke="#7F0909"/>
+      <text x="115" y="164">10</text> <line x1="118" y1="160" x2="120" y2="160" stroke="#7F0909"/>
+      <text x="115" y="204">5</text>  <line x1="118" y1="200" x2="120" y2="200" stroke="#7F0909"/>
+      <text x="115" y="244">0</text>
+    </g>
+
+    <!-- groups: Pricing(8→18), Legal(8→18), Technical(7→16), Competitive(7→18) -->
+    <!-- each group occupies 180px width. Bars 60px each with gap. -->
+    <!-- scale: 8 px per line -->
+    <g>
+      <!-- Pricing -->
+      <rect x="160" y="176" width="55" height="64"  fill="#B8860B" stroke="#3C0000" stroke-width="1"/>
+      <rect x="220" y="96"  width="55" height="144" fill="#7F0909" stroke="#3C0000" stroke-width="1"/>
+      <text x="245" y="260" font-size="12" fill="#3C0000" text-anchor="middle" font-weight="700">Pricing</text>
+      <text x="187" y="172" font-size="11" fill="#3C0000" text-anchor="middle">8</text>
+      <text x="247" y="92"  font-size="11" fill="#3C0000" text-anchor="middle" font-weight="700">18</text>
+
+      <!-- Legal -->
+      <rect x="335" y="176" width="55" height="64"  fill="#B8860B" stroke="#3C0000" stroke-width="1"/>
+      <rect x="395" y="96"  width="55" height="144" fill="#7F0909" stroke="#3C0000" stroke-width="1"/>
+      <text x="420" y="260" font-size="12" fill="#3C0000" text-anchor="middle" font-weight="700">Legal</text>
+      <text x="362" y="172" font-size="11" fill="#3C0000" text-anchor="middle">8</text>
+      <text x="422" y="92"  font-size="11" fill="#3C0000" text-anchor="middle" font-weight="700">18</text>
+
+      <!-- Technical Fit -->
+      <rect x="510" y="184" width="55" height="56"  fill="#B8860B" stroke="#3C0000" stroke-width="1"/>
+      <rect x="570" y="112" width="55" height="128" fill="#7F0909" stroke="#3C0000" stroke-width="1"/>
+      <text x="595" y="260" font-size="12" fill="#3C0000" text-anchor="middle" font-weight="700">Technical Fit</text>
+      <text x="537" y="180" font-size="11" fill="#3C0000" text-anchor="middle">7</text>
+      <text x="597" y="108" font-size="11" fill="#3C0000" text-anchor="middle" font-weight="700">16</text>
+
+      <!-- Competitive -->
+      <rect x="685" y="184" width="55" height="56"  fill="#B8860B" stroke="#3C0000" stroke-width="1"/>
+      <rect x="745" y="96"  width="55" height="144" fill="#7F0909" stroke="#3C0000" stroke-width="1"/>
+      <text x="770" y="260" font-size="12" fill="#3C0000" text-anchor="middle" font-weight="700">Competitive</text>
+      <text x="712" y="180" font-size="11" fill="#3C0000" text-anchor="middle">7</text>
+      <text x="772" y="92"  font-size="11" fill="#3C0000" text-anchor="middle" font-weight="700">18</text>
+    </g>
+
+    <!-- legend -->
+    <g font-size="12" fill="#3C0000">
+      <rect x="160" y="10" width="14" height="14" fill="#B8860B" stroke="#3C0000"/>
+      <text x="180" y="22">Before</text>
+      <rect x="240" y="10" width="14" height="14" fill="#7F0909" stroke="#3C0000"/>
+      <text x="260" y="22">After (today)</text>
+    </g>
+  </svg>
+  <div class="figure-caption">Figure 2 — Output-section count in each specialist's system prompt, before vs. after <code>2ab9c39</code>. Every brief roughly doubled, all gained an explicit final recommendation step.</div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Pricing Specialist <span class="pill changed">rewritten</span></h3>
+      <h4>What's new</h4>
+      <ul class="tight">
+        <li>Now <strong>names Acme's four commercial demands explicitly</strong>: 35% discount, Net 90, 5-year no-escalator, MFN</li>
+        <li>Must classify each as <em>non-starter / negotiable / acceptable</em> with exact counter-language</li>
+        <li>Output grew from 4 to 7 numbered sections, ~500 words</li>
+        <li>Closes with a deal recommendation: <em>bid aggressively / bid with conditions / consider walking away</em></li>
+      </ul>
+      <h4>Why it matters</h4>
+      <p>Previously the specialist could return generic "we'd offer Enterprise tier" prose. Now it cannot dodge the four hard demands — the brief forces an answer on each one.</p>
+    </div>
+
+    <div class="card">
+      <h3>Legal Reviewer <span class="pill changed">rewritten</span></h3>
+      <h4>What's new</h4>
+      <ul class="tight">
+        <li>Must work through <strong>all ten</strong> checklist categories — including silence-as-deviation</li>
+        <li>Mandatory format per flag: <code>ITEM N · CATEGORY · RFP says · Severity · Why · Counter</code></li>
+        <li>Mandatory <strong>Aggregate Risk Matrix</strong> at end with totals + overall HIGH/MED/LOW + bid/no-bid</li>
+        <li>Output ~500 words</li>
+      </ul>
+      <h4>Why it matters</h4>
+      <p>The coordinator can now reconcile pricing-vs-legal conflicts mechanically by reading the risk matrix, rather than scanning prose for blockers.</p>
+    </div>
+
+    <div class="card">
+      <h3>Technical Fit Specialist <span class="pill changed">rewritten</span></h3>
+      <h4>What's new</h4>
+      <ul class="tight">
+        <li>Five Acme-specific focal points: <strong>80K events/sec, Power BI, EU residency, 99.99% SLA, 2027 Teradata deadline</strong></li>
+        <li>Must estimate weeks to first production workload <em>and</em> weeks to full migration</li>
+        <li>Must explicitly state whether we beat the 2027 deadline</li>
+        <li>Output ~400 words</li>
+      </ul>
+      <h4>Why it matters</h4>
+      <p>Adds a hard time-to-value commitment the coordinator can drop straight into the implementation plan.</p>
+    </div>
+
+    <div class="card">
+      <h3>Competitive Intel Analyst <span class="pill changed">rewritten + upgraded model</span></h3>
+      <h4>What's new</h4>
+      <ul class="tight">
+        <li>Model upgraded <code>claude-haiku-4-5</code> → <code>claude-sonnet-4-6</code> (named 4-way race; quality &gt; cost)</li>
+        <li>Brief now <strong>names all four named competitors</strong> (Databricks, Snowflake, Fabric, unnamed regional)</li>
+        <li>Must rank threats and pick a <em>primary target to displace</em></li>
+        <li>Win-probability call required: HIGH / MEDIUM / LOW</li>
+      </ul>
+      <h4>Why it matters</h4>
+      <p>Previously could "guess" who else was in the deal. Now it analyses the disclosed shortlist and commits to a primary target — which the coordinator uses to focus the proposal's competitive narrative.</p>
+    </div>
+  </div>
+
+  <!-- ============================== SKILLS ============================== -->
+  <h2>3. Skill upgrades</h2>
+  <p>The three pre-existing skill files were each given a structured closing block — turning unstructured guidance into mechanically-consumable outputs. The new <code>docx-creation</code> skill arrived as a fourth folder.</p>
+
+  <!-- Lines added per skill chart (horizontal bars) -->
+  <svg class="chart" viewBox="0 0 900 230" role="img" aria-label="Lines added per skill">
+    <!-- axis -->
+    <line x1="220" y1="20"  x2="220" y2="200" stroke="#7F0909" stroke-width="2"/>
+    <line x1="220" y1="200" x2="860" y2="200" stroke="#7F0909" stroke-width="2"/>
+
+    <!-- scale: assume max 220 lines, 600px wide → 2.73 px/line. Use round 2.7 -->
+    <!-- gridlines at 50,100,150,200 -->
+    <g font-size="10" fill="#3C0000" text-anchor="middle">
+      <line x1="355" y1="20" x2="355" y2="200" stroke="#FFC500" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/><text x="355" y="218">50</text>
+      <line x1="490" y1="20" x2="490" y2="200" stroke="#FFC500" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/><text x="490" y="218">100</text>
+      <line x1="625" y1="20" x2="625" y2="200" stroke="#FFC500" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/><text x="625" y="218">150</text>
+      <line x1="760" y1="20" x2="760" y2="200" stroke="#FFC500" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/><text x="760" y="218">200</text>
+    </g>
+    <text x="540" y="232" font-size="11" fill="#3C0000" text-anchor="middle" font-style="italic">lines added today</text>
+
+    <!-- Bars: competitive-intel 48, legal-checklist 36, pricing-playbook 19, docx-creation 218 (approx skill body) -->
+    <g>
+      <rect x="220" y="30"  width="588" height="28" fill="#7F0909" stroke="#3C0000"/>
+      <text x="215" y="50"  font-size="12" fill="#3C0000" text-anchor="end" font-weight="700">docx-creation (NEW)</text>
+      <text x="820" y="50"  font-size="12" fill="#3C0000">+218</text>
+
+      <rect x="220" y="70"  width="130" height="28" fill="#FFC500" stroke="#3C0000"/>
+      <text x="215" y="90"  font-size="12" fill="#3C0000" text-anchor="end" font-weight="700">competitive-intel</text>
+      <text x="362" y="90"  font-size="12" fill="#3C0000">+48</text>
+
+      <rect x="220" y="110" width="97"  height="28" fill="#FFC500" stroke="#3C0000"/>
+      <text x="215" y="130" font-size="12" fill="#3C0000" text-anchor="end" font-weight="700">legal-checklist</text>
+      <text x="329" y="130" font-size="12" fill="#3C0000">+36</text>
+
+      <rect x="220" y="150" width="52"  height="28" fill="#FFC500" stroke="#3C0000"/>
+      <text x="215" y="170" font-size="12" fill="#3C0000" text-anchor="end" font-weight="700">pricing-playbook</text>
+      <text x="284" y="170" font-size="12" fill="#3C0000">+19</text>
+    </g>
+
+    <!-- legend -->
+    <g font-size="11" fill="#3C0000">
+      <rect x="600" y="6" width="12" height="12" fill="#7F0909"/><text x="618" y="16">new skill</text>
+      <rect x="700" y="6" width="12" height="12" fill="#FFC500"/><text x="718" y="16">upgraded skill</text>
+    </g>
+  </svg>
+  <div class="figure-caption">Figure 3 — Lines added per skill today. The new <code>docx-creation</code> skill is by far the largest contribution; the three existing skills got focused additions, not rewrites.</div>
+
+  <div class="grid-3">
+    <div class="card accent-gold">
+      <h3>pricing-playbook <span class="pill changed">+19</span></h3>
+      <h4>Added</h4>
+      <ul class="tight">
+        <li><strong>Multi-year fixed pricing section</strong>: 3y → CPI+2% (capped 5%); 4–5y → option-year repricing</li>
+        <li>Verbatim counter-language for "no escalators" and "MFN"</li>
+        <li>Walk-away rule: discount above 30% requires VP Sales sign-off</li>
+      </ul>
+    </div>
+    <div class="card accent-gold">
+      <h3>legal-checklist <span class="pill changed">+36</span></h3>
+      <h4>Added</h4>
+      <ul class="tight">
+        <li><strong>Aggregate Risk Matrix</strong> block — blocker / negotiable / acceptable totals</li>
+        <li>Three-way bid call: <em>Proceed / Proceed with conditions / Do not bid</em></li>
+        <li>Priority order: 10 categories ranked by deal-killing potential</li>
+      </ul>
+    </div>
+    <div class="card accent-gold">
+      <h3>competitive-intel <span class="pill changed">+48</span></h3>
+      <h4>Added</h4>
+      <ul class="tight">
+        <li><strong>Named-shortlist branch</strong>: if the RFP discloses competitors, skip pattern matching and analyse them directly</li>
+        <li>Mandatory <em>Threat Ranking</em> closing block with primary target + win-probability call</li>
+        <li>One-line counter-positioning message per competitor</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:22px">New skill: <code>docx-creation</code> <span class="pill new">+218 lines · new folder</span></h3>
+  <div class="card accent-dark">
+    <p>Stefan's addition (commit <code>365035e</code>) — codifies firm-and-client branding rules so every Word deliverable looks consistent:</p>
+    <ul class="tight">
+      <li><strong>Mandatory attribution</strong>: Harry Potter's Crew → Hogwarts in header, footer, and on the cover page</li>
+      <li><strong>Gryffindor palette</strong>: deep red <code>#7F0909</code>, gold <code>#FFC500</code>, dark red <code>#3C0000</code>, cream banding <code>#FFF8E7</code></li>
+      <li><strong>Required structure</strong>: 9-section skeleton (cover → TOC → exec summary → understanding → approach → commercials → timeline → why us → appendix)</li>
+      <li><strong>Required visuals</strong>: approach diagram, cost breakdown, timeline Gantt — all generated via <code>matplotlib</code> and embedded</li>
+      <li><strong>Validation</strong>: post-save assertions that firm + client appear in the footer and that ≥1 chart and ≥1 table are present</li>
+    </ul>
+    <p>Exercised end-to-end in commit <code>cc0d032</code> by <code>run_card_a_with_docx_skill.py</code>, producing <code>outputs/hogwarts-proposal-v2.docx</code>.</p>
+  </div>
+
+  <!-- ============================== COORDINATOR ============================== -->
+  <h2>4. Coordinator changes</h2>
+  <p>The coordinator (<code>create_coordinator.py</code>) gained explicit context, a reconciliation protocol, and a hard deadline. Net change: +92 lines, −37 lines on the system prompt.</p>
+
+  <table>
+    <thead>
+      <tr><th>Section</th><th>Before</th><th>After</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Eval criteria</strong></td>
+        <td>Not mentioned</td>
+        <td>RFP weights inlined: 30% functional fit · 25% commercial · 20% TCO · 15% timeline · 10% references. Tells the coordinator where to invest prose.</td>
+      </tr>
+      <tr>
+        <td><strong>Response format</strong></td>
+        <td>Free-form 6-bullet summary</td>
+        <td>RFP §7 structure mandated: exec summary, technical proposal, commercial proposal, implementation plan, three references.</td>
+      </tr>
+      <tr>
+        <td><strong>Bid/no-bid step</strong></td>
+        <td>Implicit</td>
+        <td>Explicit gate after Legal returns: if 3+ blockers and customer unlikely to waive, document conditions in the exec summary — <em>"do not walk away silently"</em>.</td>
+      </tr>
+      <tr>
+        <td><strong>Conflict reconciliation</strong></td>
+        <td>"Don't second-guess"</td>
+        <td>"If Legal says blocker and Pricing wants to accept — <strong>escalate, don't silently override</strong>. Note conflicts in synthesis."</td>
+      </tr>
+      <tr>
+        <td><strong>Deadline awareness</strong></td>
+        <td>"deadline is real"</td>
+        <td>"deadline is 2026-05-26 and we have limited runway"</td>
+      </tr>
+      <tr>
+        <td><strong>Output filename</strong></td>
+        <td>Generic docx skill</td>
+        <td>Hardcoded: <code>BTS-Proposal-AcmeCorp.docx</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ============================== HEATMAP-ish coverage chart ============================== -->
+  <h2>5. Capability coverage — before vs. after today</h2>
+  <p>Across the swarm, here is which capabilities the specialists & coordinator now mandate (✓ = enforced by the brief or skill; ◌ = encouraged but optional; · = absent).</p>
+
+  <svg class="chart" viewBox="0 0 900 280" role="img" aria-label="Capability coverage matrix">
+    <!-- column headers -->
+    <g font-size="11" fill="#3C0000" text-anchor="middle" font-weight="700">
+      <text x="280" y="36">Structured output</text>
+      <text x="400" y="36">Acme-specific context</text>
+      <text x="520" y="36">Final recommendation</text>
+      <text x="640" y="36">Mandatory output block</text>
+      <text x="760" y="36">Conflict handling</text>
+    </g>
+    <!-- row labels -->
+    <g font-size="12" fill="#3C0000" text-anchor="end" font-weight="700">
+      <text x="220" y="72">Pricing</text>
+      <text x="220" y="106">Legal</text>
+      <text x="220" y="140">Technical Fit</text>
+      <text x="220" y="174">Competitive</text>
+      <text x="220" y="208">Coordinator</text>
+    </g>
+
+    <!-- cells: each is 100px wide, 26 high -->
+    <g font-family="Cambria, Georgia, serif" font-size="18" text-anchor="middle">
+      <!-- helper: row y = 70..206 step 34, col x = 280..760 step 120 -->
+      <!-- Pricing row -->
+      <rect x="230" y="55"  width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="280" y="76" fill="#7F0909">✓</text>
+      <rect x="350" y="55"  width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="400" y="76" fill="#7F0909">✓</text>
+      <rect x="470" y="55"  width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="520" y="76" fill="#7F0909">✓</text>
+      <rect x="590" y="55"  width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="640" y="76" fill="#7F0909">✓</text>
+      <rect x="710" y="55"  width="100" height="30" fill="#FFF8E7" stroke="#B8860B"/><text x="760" y="76" fill="#B8860B">◌</text>
+
+      <!-- Legal row -->
+      <rect x="230" y="89"  width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="280" y="110" fill="#7F0909">✓</text>
+      <rect x="350" y="89"  width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="400" y="110" fill="#7F0909">✓</text>
+      <rect x="470" y="89"  width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="520" y="110" fill="#7F0909">✓</text>
+      <rect x="590" y="89"  width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="640" y="110" fill="#7F0909">✓</text>
+      <rect x="710" y="89"  width="100" height="30" fill="#FFF8E7" stroke="#B8860B"/><text x="760" y="110" fill="#B8860B">◌</text>
+
+      <!-- Technical Fit row -->
+      <rect x="230" y="123" width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="280" y="144" fill="#7F0909">✓</text>
+      <rect x="350" y="123" width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="400" y="144" fill="#7F0909">✓</text>
+      <rect x="470" y="123" width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="520" y="144" fill="#7F0909">✓</text>
+      <rect x="590" y="123" width="100" height="30" fill="#FFF8E7" stroke="#B8860B"/><text x="640" y="144" fill="#B8860B">◌</text>
+      <rect x="710" y="123" width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="760" y="144" fill="#7F0909">·</text>
+
+      <!-- Competitive row -->
+      <rect x="230" y="157" width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="280" y="178" fill="#7F0909">✓</text>
+      <rect x="350" y="157" width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="400" y="178" fill="#7F0909">✓</text>
+      <rect x="470" y="157" width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="520" y="178" fill="#7F0909">✓</text>
+      <rect x="590" y="157" width="100" height="30" fill="#FFF8E7" stroke="#7F0909"/><text x="640" y="178" fill="#7F0909">✓</text>
+      <rect x="710" y="157" width="100" height="30" fill="#FFF8E7" stroke="#B8860B"/><text x="760" y="178" fill="#B8860B">◌</text>
+
+      <!-- Coordinator row -->
+      <rect x="230" y="191" width="100" height="30" fill="#FFC500" stroke="#3C0000"/><text x="280" y="212" fill="#3C0000">✓</text>
+      <rect x="350" y="191" width="100" height="30" fill="#FFC500" stroke="#3C0000"/><text x="400" y="212" fill="#3C0000">✓</text>
+      <rect x="470" y="191" width="100" height="30" fill="#FFC500" stroke="#3C0000"/><text x="520" y="212" fill="#3C0000">✓</text>
+      <rect x="590" y="191" width="100" height="30" fill="#FFC500" stroke="#3C0000"/><text x="640" y="212" fill="#3C0000">✓</text>
+      <rect x="710" y="191" width="100" height="30" fill="#FFC500" stroke="#3C0000"/><text x="760" y="212" fill="#3C0000">✓</text>
+    </g>
+
+    <!-- legend -->
+    <g font-size="11" fill="#3C0000">
+      <text x="240" y="252" font-weight="700">Legend</text>
+      <text x="290" y="252">✓ enforced</text>
+      <text x="380" y="252" fill="#B8860B">◌ encouraged</text>
+      <text x="490" y="252">· not present</text>
+      <rect x="580" y="240" width="14" height="14" fill="#FFC500" stroke="#3C0000"/><text x="600" y="252">Coordinator highlight row</text>
+    </g>
+  </svg>
+  <div class="figure-caption">Figure 4 — After today, every specialist enforces structured output, Acme-specific context, and a final recommendation. The coordinator is the only role enforcing conflict handling — by design.</div>
+
+  <!-- ============================== TAKEAWAYS ============================== -->
+  <h2>6. Net takeaways</h2>
+  <ol>
+    <li><strong>The swarm went from generic to deal-specific.</strong> Specialists now name Acme's actual numbers (35%, Net 90, 80K events/sec, 2027 Teradata deadline) in their briefs — they can't return vague answers.</li>
+    <li><strong>Outputs are now machine-reconcilable.</strong> Aggregate Risk Matrix, Threat Ranking, deal recommendation pills mean the coordinator can resolve conflicts on a structured field rather than parsing prose.</li>
+    <li><strong>Conflict is no longer silent.</strong> Coordinator must escalate Legal-vs-Pricing disagreements rather than pick a side. The biggest behavioural change.</li>
+    <li><strong>Deliverable branding is codified.</strong> The new <code>docx-creation</code> skill removes ambiguity about how Hogwarts-facing documents look — and was exercised end-to-end the same afternoon.</li>
+    <li><strong>One model was upgraded.</strong> Competitive Intel moved Haiku → Sonnet: a deliberate cost-vs-quality call for a deal with a named four-way race.</li>
+  </ol>
+
+  <div class="footer">
+    <strong>Harry Potter's Crew</strong> &nbsp;·&nbsp; Prepared for <strong>Hogwarts</strong> &nbsp;·&nbsp; Engineering note &nbsp;·&nbsp; 21 May 2026
+  </div>
+
+</div>
+</body>
+</html>
