@@ -109,12 +109,48 @@ If two or more of these signals appear, both competitors are likely shortlisted.
 **Trap to avoid:**
 - Don't claim better serverless than BigQuery. We're not.
 
+## When competitors are named in the RFP
+
+If the RFP discloses its vendor shortlist, do not guess — analyse each named competitor directly. Skip pattern matching for named competitors; use it only to assess unnamed ones.
+
+For named competitors, your output structure changes:
+1. For each named competitor: threat level (HIGH / MEDIUM / LOW) + why
+2. Their specific strengths on THIS RFP (not generic)
+3. Their specific weaknesses on THIS RFP (not generic)
+4. Our one-line counter-positioning message
+5. One trap per competitor
+
+For unnamed competitors in the shortlist ("a regional vendor we will not name"):
+- Assess what segment the unnamed vendor is likely from, based on RFP signals
+- Apply pattern-matching table above
+- Assign a threat level with rationale
+
+## Ranked threat analysis (required)
+
+After individual battlecards, always close with:
+
+```
+THREAT RANKING
+1. [Competitor] — [why they are the biggest threat on this specific deal]
+2. [Competitor] — ...
+3. [Competitor] — ...
+
+Our primary target to displace: [single competitor]
+Reason: [one sentence]
+
+Win probability: HIGH / MEDIUM / LOW
+Rationale: [1–2 sentences — what tips the deal toward or away from us]
+
+Our best opening move: [single specific recommendation, e.g. "Run a 3-year TCO comparison against Microsoft Fabric at Acme's actual Azure spend"]
+```
+
 ## How to format your output
 
-For each likely competitor:
-1. Why they're likely in this deal (cite the RFP signals)
-2. Their strengths AGAINST OUR ANGLES (not generic strengths)
-3. Our two best positioning angles for THIS RFP specifically
-4. One trap
+For each competitor (named or inferred):
+1. Why they are in this deal (cite RFP signals or stated shortlist)
+2. Their strengths AGAINST OUR ANGLES on this deal
+3. Their weaknesses we can exploit
+4. Our one-line counter-positioning message
+5. One trap
 
-Then a one-line summary: "Most likely shortlist: X, Y, Z. Our best opening move: [specific recommendation]."
+Then the ranked threat analysis block above.

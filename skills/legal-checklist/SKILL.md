@@ -107,3 +107,39 @@ Severity: BLOCKER
 Why: Our cyber policy caps at 24mo fees. Uncapped liability voids coverage.
 Counter: "Liability capped at 24 months of fees paid, with mutual carve-outs for IP infringement and gross negligence."
 ```
+
+## Aggregate risk matrix (required at end of every review)
+
+After flagging individual items, always close with this summary block:
+
+```
+AGGREGATE RISK MATRIX
+Blockers:    N  (items that prevent us signing without concession)
+Negotiable:  N  (items we'll fight but can potentially accept)
+Acceptable:  N  (items that are fine as-is or minor)
+
+Overall contract risk: HIGH / MEDIUM / LOW
+
+Rationale: [1–2 sentences on why the aggregate risk is rated as above]
+
+Legal recommendation:
+  [ ] Proceed — risk is within tolerance
+  [ ] Proceed with conditions — list the specific blockers that must be resolved before signature
+  [ ] Do not bid — blocker(s) are non-negotiable and unlikely to be waived
+```
+
+Use "Do not bid" only when there are 2+ blockers that are insurance-binding constraints (e.g. uncapped liability + unlimited indemnification together). A single blocker is almost always negotiable with enough deal value.
+
+## Priority order
+
+When time is short, work the checklist in this order of deal-killing potential:
+1. Liability cap (most likely to void our insurance)
+2. IP assignment (most likely to set bad precedent across portfolio)
+3. Audit rights (operationally disruptive if left unrestricted)
+4. Termination (cash flow risk)
+5. Subprocessors (GDPR compliance risk)
+6. Service levels (performance commitment we may not be able to honour)
+7. Data residency (compliance risk)
+8. Governing law (legal cost risk)
+9. Data breach notification (operational risk)
+10. Insurance (usually resolvable with broker)

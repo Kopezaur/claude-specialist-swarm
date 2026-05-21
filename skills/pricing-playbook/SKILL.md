@@ -58,8 +58,27 @@ Discount is from list. **Maximum** discount by deal size:
 - **Unlimited indemnification on data breach**: cap at 24 months of fees, with carve-outs.
 - **Refund on termination for convenience**: pro-rated only, no penalty fees.
 
+## Multi-year fixed pricing (no escalators)
+
+Customers sometimes demand fixed pricing across a 3–5 year term with no escalators.
+
+**Our position:** We will not sign a contract that is purely price-fixed over 5 years with no escalator of any kind. Inflation risk over that horizon is material.
+
+**What we will offer instead:**
+- 3-year term: CPI + 2% annual escalator, capped at 5% per year. Non-negotiable.
+- 4–5 year term: Same escalator mechanism. In exchange we offer a deeper upfront discount (see discount bands).
+- If the customer insists on "no escalators," the deal must be structured as 3+2 option years (not a committed 5-year), where option years reprice at then-current list minus the agreed discount band.
+
+**Counter-language for "no escalators" demand:**
+> "Pricing for committed years 1–3 is fixed at [agreed rate]. At the start of Year 4 and Year 5 (option periods), annual fees reprice at list minus [agreed discount]%, not to exceed a [X]% increase over the prior year."
+
+**Counter-language for MFN clause:**
+> "We do not offer MFN pricing guarantees. Our pricing is structured based on deal-specific scope, volume, and term. We will offer Acme the most competitive rate we can justify given those factors, but we cannot warrant that no other customer receives a different price for a different deal."
+
 ## Reading the room
 
 If the RFP suggests the customer is also evaluating Databricks or Snowflake, expect aggressive pricing pressure. We can match their list but won't undercut by more than 10%. Our differentiator is total cost of ownership, not headline price.
 
 If the RFP is for a known difficult-counterparty (procurement-heavy regulated industries), price the deal 5% higher than band to leave room for the haggle.
+
+If the customer demands a discount above our strategic maximum (30%), document that as a walk-away condition and escalate to VP Sales before responding. Do not unilaterally concede beyond band without sign-off.

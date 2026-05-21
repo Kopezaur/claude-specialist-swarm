@@ -1,19 +1,60 @@
-No dedicated docx skill found, but python-docx is available. Let me kick off all four specialists in parallel now.Legal review received. Logging and waiting on the other three specialists.Technical fit received. Two of four in. Waiting on Pricing and Competitive Intel.Competitive intel received. Three of four in. Waiting on Pricing.All four specialists in. Synthesizing now and building the branded Word document.Document built successfully — 11 tables, full structure intact. Final deliverable is at `/mnt/session/outputs/BTS-Synthetic_Acme_RFP_Response.docx`.
+I've read the RFP. Quick situational read before delegating:
 
-## Deal Desk — Final Summary
+**Customer:** Acme Corp, $1.4B industrial IoT manufacturer, Azure shop, decommissioning Teradata by 2027. Power BI is non-negotiable (600 users).
 
-All four specialists reported in. Synthesis went into a branded BTS-Synthetic Word document covering Acme's required response structure.
+**Workload fit:** Strong — 80K events/sec well within our 250K capability, 280TB lakehouse, native Power BI DirectQuery. Weak spot: 99.99% SLA (we ship 99.95% standard).
 
-**Headline positions taken in the proposal:**
+**Known commercial / legal landmines:**
+- 35% discount demand (our recent comparable deals: 10–28%)
+- Net 90 payment, MFN clause, no escalators over 5 years
+- Uncapped breach liability + full indemnity for fines/reputation
+- 30-day termination for convenience, no penalty
+- 4× unannounced audits/year at vendor cost
+- 99.99% SLA with full-month refund on any miss
+- All IP vests in Acme
+- Subprocessor consent at Acme's sole discretion
 
-- **Technical fit: HIGH.** Ten of eleven requirements full-fit. Lead with the Power BI DirectQuery adapter, native EU residency, and open Delta/Iceberg/Parquet on Azure Blob. Honest about ~250ms–1s streaming-query latency as the one partial-fit.
+These are aggressive opening positions. I'm not walking away — Acme is a top-shelf comparable to Initech Sensors (won) and Globex (won). But I need Legal and Pricing to give me the counter-positions explicitly so the proposal isn't vague.
 
-- **Commercial: $639,600/yr Year 1–3 at 22% discount,** rising to $661,200 by Year 5. 5-year TCV $3.23M. **99.99% SLA priced in transparently** at $100K/yr — flagged proactively, not deferred. We refuse the 35% demand (anchored on Globex 18% / Initech 15% / Stark 28%); refuse MFN outright; counter Net 90 to Net 60; counter 30-day termination to 90.
+Spawning all four specialists in parallel now.Two of four specialists in. Pricing landed at 23% open / 25–27% ceiling with CPI+2% escalator, Net 60, refuse MFN. Legal flagged 4 BLOCKERs — exactly at our bid/no-bid tolerance. Waiting on Technical Fit and Competitive Intel before I synthesise.Waiting on Tech Fit and Competitive Intel. Ending turn.Tech Fit landed — HIGH overall, no outright gaps, two partial fits already mitigated. Waiting on Competitive Intel.All four specialists in. Reconciling now before I write.
 
-- **Legal: three red lines stated plainly.** Uncapped breach liability → 24-month cap. Full IP assignment → perpetual licence-back (Stark precedent). Without-notice audits → 2×/yr with 30-day notice. SLA-miss "immediate termination" softened to service credits + 3 consecutive months of material breach.
+**Conflicts to resolve:**
 
-- **Competitive: Fabric is the top threat,** Databricks second, Snowflake third. Positioning hammer: Fabric's 99.95% SLA + 18-month maturity vs. our 99.99% on a tested 250K events/sec engine. Do not chase Databricks' discount precedent — compete on TCO.
+1. **SLA — Legal wants counter to 99.95% with service credits + cure period; Tech Fit wants to LEAD with 99.99% premium tier as a priced line item.** These are not actually in conflict — combine them. We offer Acme our **99.99% Premium Availability** tier ($80–120K/yr) as a priced add-on (since their EU+US active-active topology supports it), but the MSA SLA language for the underlying service is 99.95% with service-credit remedies and termination only on repeated material failures with cure period. Be explicit about both layers.
 
-- **Risks called out:** Teradata cutover against the 2027 horizon, sub-100ms streaming use cases scoped in week 1, and contract slippage against the 2026-06-30 award date (counter-position pack is signing-ready on Negotiate items).
+2. **Pricing's BLUF says "$891K Year 1" but table shows $693K.** The table is consistent ($900K list × 0.77 = $693K). I'll use the table. The $891K appears to be a slip.
 
-**Deal stance:** Chase selectively. If Acme moves on MFN, liability cap, and Net 60, this closes in the $635–$640K/yr band. If they hold MFN + uncapped + Net 90 as a package, walk — the Pied Piper lesson applies.
+3. **4 BLOCKERs exactly at bid/no-bid tolerance.** Per the brief, I do not walk silently — I surface all four in the executive summary as conditions of bid.
+
+4. **Streaming latency** — Tech Fit flagged as a clarification question. I'll include it as an explicit RFP clarification.
+
+Now building the branded Word doc.Document is built and validated. **`BTS-Proposal-AcmeCorp.docx`** delivered to `/mnt/session/outputs/`.
+
+## Deal Desk summary — what's in the proposal
+
+**Bid decision: YES, with conditions.** Four legal blockers exactly at our bid/no-bid tolerance — I have surfaced all four in the executive summary as conditions of award, per protocol. No silent walk-away.
+
+**Document structure** (all RFP §7 requirements covered, ordered by Acme's evaluation weights):
+
+| # | Section | Source |
+|---|---|---|
+| 1 | Executive Summary — 3-bullet "why us", commercial headline, conditions of bid, key risk | Synthesis |
+| 2 | Our Understanding of Acme's Need | RFP read |
+| 3 | Technical Proposal — capability map (13 reqs, all FULL or PARTIAL FIT), 3 differentiators, 3 honest risk disclosures | Tech Fit |
+| 4 | Implementation Plan — M0–M8, hits 2027-12-31 Teradata decom with 90-day buffer | Tech Fit |
+| 5 | Commercial Proposal — full 5-year pricing table ($693K Y1 → $3.65M 5-yr), 99.99% Premium SLA as priced line item, Net 60, PoC credit | Pricing |
+| 6 | Contract Approach — clause-by-clause: ACCEPT / COUNTER / BLOCKER on all 10 contentious clauses | Legal |
+| 7 | Competitive Differentiation — Fabric / Databricks / Snowflake / regional with counter-punches | Comp Intel |
+| 8 | Three Customer References — Initech (industrial IoT, closest), Globex (industrial), Stark (IP precedent) | past-wins.json |
+| 9 | Risk Register — top 3 with mitigations | Synthesis |
+| 10 | Vendor Stability | Tech Fit |
+| 11 | Clarification Questions for Acme — incl. the streaming-latency question Tech Fit flagged | Tech Fit |
+
+**Key reconciliations I made:**
+- **SLA tension between Legal and Tech Fit** → resolved by making 99.99% an explicit priced line item ($100K/yr) for the architecture Acme already needs (active-active EU+US), while the MSA SLA stays at 99.95% with service credits + cure period before termination. Both specialists' positions preserved, no smoothing.
+- **Pricing BLUF typo** ($891K → corrected to $693K, matching their own table).
+- **4 blockers surfaced explicitly** in the exec summary, with the specific minimum concession on each — not buried in §6.
+
+**What I am asking Acme for before 2026-05-26:** a 60-minute redline call with Sarah Chen / Marcus Webb covering §4.1 (uncapped liability), §4.2 (audits), §4.3 (SLA termination), §4.4 (IP). The proposal includes specific counter-language for each, so the call is targeted, not exploratory.
+
+**Walk-away line** documented internally and in §5.5: 27% discount floor. Beyond that, only with multi-year prepay or reference commitment. Pied Piper lesson applied.
