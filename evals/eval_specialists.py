@@ -1,18 +1,17 @@
 """
-Simple eval for the Deal Desk specialists.
+Eval for the Deal Desk specialists.
 
-Each specialist's system prompt is taken from create_specialists.py. We run each
-one as a one-shot Claude API call against the synthetic RFP and grade the
-response. No coordinator, no multi-agent — this isolates each specialist's
-behaviour.
+Each specialist is run as a one-shot Claude API call with its system prompt +
+the relevant skill content (pricing-playbook, legal-checklist, competitive-intel)
+or product-overview.md for the technical-fit specialist.
 
 Graders:
-  - response_contains: substring match (case-insensitive)
-  - llm_judge: Claude Haiku judges PASS/FAIL against a criterion
+  response_contains — case-insensitive substring match
+  llm_judge        — Claude Haiku PASS/FAIL against a criterion
 
 Outputs:
-  - evals/results/eval_<timestamp>.json   (full structured results)
-  - evals/results/eval_<timestamp>.html   (human-readable report)
+  evals/results/eval_<timestamp>.json
+  evals/results/eval_<timestamp>.html
 
 Usage:
   export ANTHROPIC_API_KEY="sk-ant-..."
@@ -38,9 +37,9 @@ sys.path.insert(0, str(REPO_ROOT))
 from create_specialists import SPECIALISTS  # noqa: E402
 
 SPECIALIST_BY_KEY = {s["key"]: s for s in SPECIALISTS}
-
 RESULTS_DIR = Path(__file__).resolve().parent / "results"
 SYNTHETIC_DIR = REPO_ROOT / "synthetic-data"
+SKILLS_DIR = REPO_ROOT / "skills"
 
 JUDGE_MODEL = "claude-haiku-4-5-20251001"
 MAX_TOKENS = 2048
@@ -48,51 +47,65 @@ MAX_TOKENS = 2048
 client = Anthropic()
 
 
-def load_synthetic_inputs() -> dict[str, str]:
+def load_inputs() -> dict[str, str]:
     return {
         "rfp": (SYNTHETIC_DIR / "rfp-acme-corp.md").read_text(encoding="utf-8"),
         "product_overview": (SYNTHETIC_DIR / "product-overview.md").read_text(encoding="utf-8"),
         "past_wins": (SYNTHETIC_DIR / "past-wins.json").read_text(encoding="utf-8"),
+        "skill_pricing": (SKILLS_DIR / "pricing-playbook" / "SKILL.md").read_text(encoding="utf-8"),
+        "skill_legal": (SKILLS_DIR / "legal-checklist" / "SKILL.md").read_text(encoding="utf-8"),
+        "skill_competitive": (SKILLS_DIR / "competitive-intel" / "SKILL.md").read_text(encoding="utf-8"),
     }
 
 
-def build_user_prompt(specialist_key: str, inputs: dict[str, str]) -> str:
+def build_prompt(specialist_key: str, inputs: dict) -> str:
     rfp = inputs["rfp"]
     if specialist_key == "pricing":
         return (
-            "Here is the RFP and our past-wins data. Produce your pricing recommendation.\n\n"
+            "Here is the RFP, our past-wins data, and your pricing-playbook skill. "
+            "Produce your pricing recommendation.\n\n"
             f"=== RFP ===\n{rfp}\n\n"
-            f"=== past-wins.json ===\n{inputs['past_wins']}\n"
+            f"=== past-wins.json ===\n{inputs['past_wins']}\n\n"
+            f"=== pricing-playbook skill ===\n{inputs['skill_pricing']}\n"
         )
     if specialist_key == "legal":
-        return f"Here is the RFP. Produce your legal review.\n\n=== RFP ===\n{rfp}\n"
+        return (
+            "Here is the RFP and your legal-checklist skill. "
+            "Produce your legal review.\n\n"
+            f"=== RFP ===\n{rfp}\n\n"
+            f"=== legal-checklist skill ===\n{inputs['skill_legal']}\n"
+        )
     if specialist_key == "technical_fit":
         return (
-            "Here is the RFP and our product overview. Produce your technical fit assessment.\n\n"
+            "Here is the RFP and our product overview. "
+            "Produce your technical fit assessment.\n\n"
             f"=== RFP ===\n{rfp}\n\n"
             f"=== product-overview.md ===\n{inputs['product_overview']}\n"
         )
     if specialist_key == "competitive":
-        return f"Here is the RFP. Produce your competitive analysis.\n\n=== RFP ===\n{rfp}\n"
-    raise ValueError(f"Unknown specialist key: {specialist_key}")
+        return (
+            "Here is the RFP and your competitive-intel skill. "
+            "Produce your competitive analysis.\n\n"
+            f"=== RFP ===\n{rfp}\n\n"
+            f"=== competitive-intel skill ===\n{inputs['skill_competitive']}\n"
+        )
+    raise ValueError(f"Unknown specialist: {specialist_key}")
 
 
-def run_specialist(specialist_key: str, inputs: dict[str, str]) -> dict:
+def call_specialist(specialist_key: str, inputs: dict) -> dict:
     spec = SPECIALIST_BY_KEY[specialist_key]
-    user_prompt = build_user_prompt(specialist_key, inputs)
     start = time.time()
     response = client.messages.create(
         model=spec["model"],
         system=spec["system"],
         max_tokens=MAX_TOKENS,
-        messages=[{"role": "user", "content": user_prompt}],
+        messages=[{"role": "user", "content": build_prompt(specialist_key, inputs)}],
     )
-    elapsed = time.time() - start
-    text = "".join(block.text for block in response.content if hasattr(block, "text"))
+    text = "".join(b.text for b in response.content if hasattr(b, "text"))
     return {
         "final_text": text,
         "model": spec["model"],
-        "elapsed_s": round(elapsed, 2),
+        "elapsed_s": round(time.time() - start, 2),
         "input_tokens": response.usage.input_tokens,
         "output_tokens": response.usage.output_tokens,
     }
@@ -100,23 +113,22 @@ def run_specialist(specialist_key: str, inputs: dict[str, str]) -> dict:
 
 # ── Graders ──────────────────────────────────────────────────────────────────
 
-JUDGE_SYSTEM = (
-    "You are an eval grader. Judge whether an agent's response meets a criterion. "
-    "Respond with PASS or FAIL on the first line, then a one-sentence reason on the next."
+JUDGE_SYS = (
+    "You are an eval grader. Judge whether an AI agent's response meets a criterion. "
+    "First line must be exactly PASS or FAIL. Second line: one-sentence reason."
 )
 
 
 def grade_contains(result: dict, check: str) -> dict:
-    text = result["final_text"].lower()
-    if check.lower() in text:
+    if check.lower() in result["final_text"].lower():
         return {"score": 1.0, "reason": f"Found '{check}'"}
-    return {"score": 0.0, "reason": f"'{check}' not found"}
+    return {"score": 0.0, "reason": f"'{check}' not found in response"}
 
 
 def grade_llm_judge(result: dict, check: str, query: str) -> dict:
-    judge_prompt = (
-        f"Original task: {query}\n\n"
-        f"Agent's response:\n{result['final_text']}\n\n"
+    prompt = (
+        f"Task: {query}\n\n"
+        f"Response:\n{result['final_text']}\n\n"
         f"Criterion: {check}"
     )
     try:
@@ -124,17 +136,14 @@ def grade_llm_judge(result: dict, check: str, query: str) -> dict:
             model=JUDGE_MODEL,
             max_tokens=150,
             temperature=0.0,
-            system=JUDGE_SYSTEM,
-            messages=[{"role": "user", "content": judge_prompt}],
+            system=JUDGE_SYS,
+            messages=[{"role": "user", "content": prompt}],
         )
-        text = resp.content[0].text.strip()
-        first = text.split("\n", 1)[0].upper()
-        reason = text.split("\n", 1)[1].strip() if "\n" in text else text
-        if "PASS" in first:
-            return {"score": 1.0, "reason": f"Judge: {reason}"}
-        if "FAIL" in first:
-            return {"score": 0.0, "reason": f"Judge: {reason}"}
-        return {"score": 0.0, "reason": f"Unparseable: {text[:120]}"}
+        raw = resp.content[0].text.strip()
+        first = raw.split("\n", 1)[0].upper()
+        reason = raw.split("\n", 1)[1].strip() if "\n" in raw else raw
+        score = 1.0 if "PASS" in first else 0.0
+        return {"score": score, "reason": f"Judge: {reason}"}
     except Exception as exc:
         return {"score": 0.0, "reason": f"Judge error: {exc}"}
 
@@ -142,90 +151,142 @@ def grade_llm_judge(result: dict, check: str, query: str) -> dict:
 # ── Tasks ────────────────────────────────────────────────────────────────────
 
 TASKS = [
+    # ── Pricing Specialist ────────────────────────────────────────────────
     {
         "id": "pricing_addresses_acme_demands",
         "specialist": "pricing",
-        "description": "Pricing specialist addresses each of Acme's four red-flag demands",
+        "description": "Addresses each of Acme's four red-flag demands (35%, Net 90, no escalators, MFN)",
         "graders": [
-            {"type": "contains", "checks": ["35%", "Net 90", "MFN", "escalator"]},
+            {"type": "contains", "checks": ["35%", "Net 90", "MFN", "escalat"]},
             {"type": "llm_judge", "checks": [
-                "Response states whether each of Acme's demands (35% discount, Net 90, no escalators, MFN) is a non-starter, negotiable, or acceptable",
-                "Response references comparable past wins data when recommending a discount band",
+                "Response states whether each of Acme's four demands is a non-starter, negotiable, or acceptable and gives a counter-position for each",
             ]},
         ],
     },
+    {
+        "id": "pricing_uses_playbook_specifics",
+        "specialist": "pricing",
+        "description": "Uses playbook data: Enterprise tier, discount bands, and playbook counter-language",
+        "graders": [
+            {"type": "contains", "checks": ["Enterprise", "720", "25%", "30%"]},
+            {"type": "llm_judge", "checks": [
+                "Response references specific numbers from the pricing playbook (tier names, list prices, or max discount percentages) rather than generic advice",
+                "Response cites past-wins comparable deals to justify the recommended discount band",
+            ]},
+        ],
+    },
+
+    # ── Legal Reviewer ────────────────────────────────────────────────────
     {
         "id": "legal_uses_required_format",
         "specialist": "legal",
-        "description": "Legal reviewer uses the structured ITEM/Severity format and aggregate risk matrix",
+        "description": "Uses the ITEM/Severity/Why/Counter structure for each flag",
         "graders": [
-            {"type": "contains", "checks": ["BLOCKER", "Severity", "Counter", "Overall contract risk"]},
+            {"type": "contains", "checks": ["BLOCKER", "Severity", "Counter:", "Overall contract risk"]},
             {"type": "llm_judge", "checks": [
-                "Response uses the required ITEM N / RFP says / Severity / Why / Counter structure for each flag",
+                "Response follows the exact ITEM N / RFP says / Severity / Why / Counter format for at least two flags",
             ]},
         ],
     },
+    {
+        "id": "legal_covers_all_categories",
+        "specialist": "legal",
+        "description": "Works through all 10 checklist categories from the skill",
+        "graders": [
+            {"type": "contains", "checks": ["Liability", "Intellectual Property", "Audit", "Termination", "Subprocessor"]},
+            {"type": "llm_judge", "checks": [
+                "Response covers at least 7 of the 10 checklist categories: data residency, liability, IP, audit, termination, breach notification, subprocessors, governing law, service levels, insurance",
+            ]},
+        ],
+    },
+
+    # ── Technical Fit Specialist ──────────────────────────────────────────
     {
         "id": "technical_fit_flags_known_gaps",
         "specialist": "technical_fit",
-        "description": "Technical fit calls out 80K events/sec, Power BI, 99.99 SLA, and the 2027 Teradata deadline",
+        "description": "Flags the four key requirements: 80K events/sec, Power BI, 99.99% SLA, 2027 Teradata deadline",
         "graders": [
             {"type": "contains", "checks": ["80,000", "Power BI", "99.99", "2027"]},
             {"type": "llm_judge", "checks": [
-                "Response provides an overall fit score of HIGH, MEDIUM, or LOW with a rationale",
+                "Response provides an overall fit score (HIGH, MEDIUM, or LOW) with a one-sentence rationale",
             ]},
         ],
     },
     {
+        "id": "technical_fit_implementation_timeline",
+        "specialist": "technical_fit",
+        "description": "Gives a concrete implementation timeline and assesses the 2027 Teradata migration deadline",
+        "graders": [
+            {"type": "contains", "checks": ["2027", "week", "migrat"]},
+            {"type": "llm_judge", "checks": [
+                "Response gives a specific estimated timeline in weeks or months to first production workload",
+                "Response explicitly states whether the implementation timeline is compatible with Acme's 2027 Teradata decommission deadline",
+            ]},
+        ],
+    },
+
+    # ── Competitive Intel Analyst ─────────────────────────────────────────
+    {
         "id": "competitive_analyses_named_shortlist",
         "specialist": "competitive",
-        "description": "Competitive analyst covers Databricks, Snowflake, Microsoft Fabric, and the regional vendor",
+        "description": "Covers all four named competitors: Databricks, Snowflake, Microsoft Fabric, regional vendor",
         "graders": [
-            {"type": "contains", "checks": ["Databricks", "Snowflake", "Microsoft Fabric"]},
+            {"type": "contains", "checks": ["Databricks", "Snowflake", "Microsoft Fabric", "regional"]},
             {"type": "llm_judge", "checks": [
-                "Response identifies which competitor is the biggest threat and explains why",
-                "Response gives a win-probability rating (HIGH, MEDIUM, or LOW) with rationale",
+                "Response identifies which competitor is the single biggest threat to winning this deal and explains why",
+            ]},
+        ],
+    },
+    {
+        "id": "competitive_uses_threat_ranking",
+        "specialist": "competitive",
+        "description": "Closes with the required THREAT RANKING block and win probability",
+        "graders": [
+            {"type": "contains", "checks": ["THREAT RANKING", "Win probability", "primary target"]},
+            {"type": "llm_judge", "checks": [
+                "Response gives a clear win probability rating (HIGH, MEDIUM, or LOW) with a rationale sentence",
+                "Response recommends a single best opening move (specific action, not generic advice)",
             ]},
         ],
     },
 ]
 
+SPECIALIST_LABELS = {
+    "pricing": "Pricing Specialist",
+    "legal": "Legal Reviewer",
+    "technical_fit": "Technical Fit",
+    "competitive": "Competitive Intel",
+}
 
-def run_task(task: dict, inputs: dict[str, str]) -> dict:
+
+def run_task(task: dict, inputs: dict) -> dict:
     start = time.time()
     try:
-        result = run_specialist(task["specialist"], inputs)
+        result = call_specialist(task["specialist"], inputs)
     except Exception:
         return {
-            "task_id": task["id"],
-            "specialist": task["specialist"],
-            "description": task["description"],
-            "passed": False,
-            "grades": [],
+            **{k: task[k] for k in ("id", "specialist", "description")},
+            "passed": False, "grades": [],
             "error": traceback.format_exc(),
             "elapsed_s": round(time.time() - start, 2),
         }
 
     grades = []
-    query = f"[{task['specialist']}] {task['description']}"
+    query = task["description"]
     for grader in task["graders"]:
-        gtype = grader["type"]
         for check in grader["checks"]:
-            if gtype == "contains":
+            if grader["type"] == "contains":
                 g = grade_contains(result, check)
-            elif gtype == "llm_judge":
+            elif grader["type"] == "llm_judge":
                 g = grade_llm_judge(result, check, query)
             else:
-                g = {"score": 0.0, "reason": f"Unknown grader: {gtype}"}
-            grades.append({"type": gtype, "check": check, **g})
+                g = {"score": 0.0, "reason": f"Unknown grader: {grader['type']}"}
+            grades.append({"type": grader["type"], "check": check, **g})
 
     passed = bool(grades) and all(g["score"] == 1.0 for g in grades)
     return {
-        "task_id": task["id"],
-        "specialist": task["specialist"],
-        "description": task["description"],
-        "passed": passed,
-        "grades": grades,
+        **{k: task[k] for k in ("id", "specialist", "description")},
+        "passed": passed, "grades": grades,
         "final_text": result["final_text"],
         "model": result["model"],
         "elapsed_s": result["elapsed_s"],
@@ -235,113 +296,267 @@ def run_task(task: dict, inputs: dict[str, str]) -> dict:
 
 
 def run_eval(max_workers: int = 4) -> dict:
-    inputs = load_synthetic_inputs()
+    inputs = load_inputs()
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
         futures = {ex.submit(run_task, t, inputs): t for t in TASKS}
         results = [f.result() for f in as_completed(futures)]
     order = {t["id"]: i for i, t in enumerate(TASKS)}
-    results.sort(key=lambda r: order[r["task_id"]])
+    results.sort(key=lambda r: order[r["id"]])
+    n_pass = sum(1 for r in results if r["passed"])
     return {
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "num_tasks": len(TASKS),
-        "num_passed": sum(1 for r in results if r["passed"]),
+        "num_tasks": len(results),
+        "num_passed": n_pass,
         "results": results,
     }
 
 
-# ── HTML report ──────────────────────────────────────────────────────────────
+# ── HTML report ───────────────────────────────────────────────────────────────
 
-HTML_STYLES = """
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-       max-width: 1000px; margin: 2em auto; padding: 0 1em; color: #1d1d1f; }
-h1 { margin-bottom: 0.2em; }
-.meta { color: #6e6e73; font-size: 0.9em; margin-bottom: 2em; }
-.summary { padding: 1em 1.25em; border-radius: 8px; background: #f5f5f7;
-           font-size: 1.1em; margin-bottom: 1.5em; }
-.summary strong { font-size: 1.3em; }
-.task { border: 1px solid #e1e1e6; border-radius: 8px; margin-bottom: 1em;
-        padding: 1em 1.25em; }
-.task.pass { border-left: 4px solid #34c759; }
-.task.fail { border-left: 4px solid #ff3b30; }
-.task h2 { font-size: 1.05em; margin: 0 0 0.3em 0; }
-.badge { display: inline-block; font-size: 0.75em; padding: 0.15em 0.55em;
-         border-radius: 4px; margin-left: 0.5em; vertical-align: middle;
-         font-weight: 600; }
-.badge.pass { background: #34c759; color: white; }
-.badge.fail { background: #ff3b30; color: white; }
-.specialist { color: #6e6e73; font-size: 0.85em; font-weight: normal; }
-.metrics { color: #6e6e73; font-size: 0.8em; margin: 0.4em 0 0.8em 0; }
-.grade { font-size: 0.88em; margin: 0.2em 0; padding-left: 1.4em;
-         text-indent: -1.4em; }
-.grade .icon { font-weight: bold; margin-right: 0.4em; }
-.grade.pass .icon { color: #34c759; }
-.grade.fail .icon { color: #ff3b30; }
-.grade .check { color: #6e6e73; }
-details { margin-top: 0.6em; }
-details summary { cursor: pointer; color: #0071e3; font-size: 0.85em; }
-pre { background: #f5f5f7; padding: 0.8em; border-radius: 6px;
-      white-space: pre-wrap; word-wrap: break-word; font-size: 0.8em;
-      max-height: 400px; overflow-y: auto; }
-.error { color: #ff3b30; font-size: 0.85em; }
+CSS = """
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f0f2f5;
+  color: #111;
+  padding: 2rem 1rem;
+  font-size: 15px;
+}
+.page { max-width: 920px; margin: 0 auto; }
+h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 0.25rem;
+}
+.run-meta { color: #666; font-size: 0.85rem; margin-bottom: 1.75rem; }
+
+/* summary bar */
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.1rem 1.4rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+.summary .score {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.summary .score .total { color: #888; font-size: 1.2rem; }
+.progress-bar {
+  flex: 1;
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.progress-bar .fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  transition: width .4s;
+}
+.pct { font-size: 1.1rem; font-weight: 600; color: #16a34a; min-width: 3rem; text-align: right; }
+.pct.bad { color: #dc2626; }
+
+/* specialist group */
+.group { margin-bottom: 1.75rem; }
+.group-header {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #6b7280;
+  margin-bottom: 0.6rem;
+  padding-left: 0.2rem;
+}
+
+/* task card */
+.card {
+  background: #fff;
+  border-radius: 10px;
+  border-left: 4px solid #e5e7eb;
+  margin-bottom: 0.65rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.07);
+  overflow: hidden;
+}
+.card.pass { border-left-color: #22c55e; }
+.card.fail { border-left-color: #ef4444; }
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem 0.7rem;
+}
+.badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.2em 0.55em;
+  border-radius: 4px;
+  letter-spacing: .04em;
+  flex-shrink: 0;
+}
+.badge.pass { background: #dcfce7; color: #15803d; }
+.badge.fail { background: #fee2e2; color: #b91c1c; }
+.task-id { font-weight: 600; font-size: 0.92rem; }
+.task-desc { color: #555; font-size: 0.85rem; padding: 0 1rem 0.65rem; }
+.metrics-row {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  padding: 0 1rem 0.75rem;
+  display: flex;
+  gap: 1rem;
+}
+
+/* grades */
+.grades { padding: 0 1rem 0.5rem; }
+.grade {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  padding: 0.28rem 0;
+  border-top: 1px solid #f3f4f6;
+  align-items: flex-start;
+}
+.grade .icon { flex-shrink: 0; font-weight: 700; }
+.grade.gpass .icon { color: #16a34a; }
+.grade.gfail .icon { color: #dc2626; }
+.grade .gtype {
+  flex-shrink: 0;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 0.7rem;
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+}
+.grade .greason { color: #374151; }
+.grade .gcheck { color: #9ca3af; font-size: 0.78rem; font-style: italic; }
+
+/* error */
+.error-box {
+  margin: 0 1rem 0.75rem;
+  padding: 0.6rem 0.8rem;
+  background: #fff1f2;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  color: #b91c1c;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* transcript toggle */
+details { margin: 0.3rem 1rem 0.8rem; }
+details summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #3b82f6;
+  user-select: none;
+}
+details summary:hover { text-decoration: underline; }
+pre {
+  margin-top: 0.5rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.8rem;
+  font-size: 0.76rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 350px;
+  overflow-y: auto;
+  color: #334155;
+}
 """
 
 
-def render_html(eval_result: dict) -> str:
-    passed = eval_result["num_passed"]
-    total = eval_result["num_tasks"]
-    pct = 100 * passed / total if total else 0
+def render_html(data: dict) -> str:
+    n_pass = data["num_passed"]
+    n_total = data["num_tasks"]
+    pct = 100 * n_pass / n_total if n_total else 0
 
-    parts = [
+    pct_cls = "bad" if pct < 50 else ""
+
+    out = [
         "<!doctype html>",
-        '<html lang="en"><head><meta charset="utf-8">',
-        "<title>Deal Desk Specialists — Eval Results</title>",
-        f"<style>{HTML_STYLES}</style></head><body>",
-        "<h1>Deal Desk Specialists — Eval Results</h1>",
-        f'<div class="meta">Run: {html.escape(eval_result["timestamp"])}</div>',
-        f'<div class="summary"><strong>{passed}/{total}</strong> tasks passed '
-        f"({pct:.0f}%)</div>",
+        '<html lang="en">',
+        '<head><meta charset="utf-8">',
+        '<meta name="viewport" content="width=device-width,initial-scale=1">',
+        "<title>Deal Desk Eval</title>",
+        f"<style>{CSS}</style>",
+        "</head><body><div class='page'>",
+        "<h1>Deal Desk Specialists — Eval Report</h1>",
+        f"<p class='run-meta'>Run: {html.escape(data['timestamp'])}</p>",
+        # summary bar
+        "<div class='summary'>",
+        f"<div class='score'>{n_pass}<span class='total'>/{n_total}</span></div>",
+        f"<div class='progress-bar'><div class='fill' style='width:{pct:.0f}%'></div></div>",
+        f"<div class='pct {pct_cls}'>{pct:.0f}%</div>",
+        "</div>",
     ]
 
-    for r in eval_result["results"]:
-        cls = "pass" if r["passed"] else "fail"
-        badge_label = "PASS" if r["passed"] else "FAIL"
-        parts.append(f'<div class="task {cls}">')
-        parts.append(
-            f'<h2>{html.escape(r["task_id"])}'
-            f'<span class="badge {cls}">{badge_label}</span>'
-            f'<span class="specialist"> — {html.escape(r["specialist"])}</span></h2>'
-        )
-        parts.append(f'<div>{html.escape(r["description"])}</div>')
-        if "error" in r:
-            parts.append(f'<div class="error">Error: {html.escape(r["error"][:500])}</div>')
-        else:
-            parts.append(
-                f'<div class="metrics">'
-                f'model: {html.escape(r["model"])} · '
-                f'{r["elapsed_s"]}s · '
-                f'{r["input_tokens"]:,} in / {r["output_tokens"]:,} out tokens</div>'
-            )
-            for g in r["grades"]:
-                gcls = "pass" if g["score"] == 1.0 else "fail"
-                icon = "✓" if g["score"] == 1.0 else "✗"
-                check_label = (
-                    g["check"][:120] + "…" if len(g["check"]) > 120 else g["check"]
-                )
-                parts.append(
-                    f'<div class="grade {gcls}">'
-                    f'<span class="icon">{icon}</span>'
-                    f'<span class="check">[{html.escape(g["type"])}] '
-                    f'{html.escape(check_label)}</span> — '
-                    f'{html.escape(g["reason"])}</div>'
-                )
-            parts.append(
-                "<details><summary>Show specialist response</summary>"
-                f'<pre>{html.escape(r["final_text"])}</pre></details>'
-            )
-        parts.append("</div>")
+    # group by specialist
+    by_specialist: dict[str, list] = {}
+    for r in data["results"]:
+        by_specialist.setdefault(r["specialist"], []).append(r)
 
-    parts.append("</body></html>")
-    return "\n".join(parts)
+    for specialist_key, tasks in by_specialist.items():
+        label = SPECIALIST_LABELS.get(specialist_key, specialist_key)
+        sp_pass = sum(1 for t in tasks if t["passed"])
+        out += [
+            "<div class='group'>",
+            f"<div class='group-header'>{html.escape(label)} &nbsp;·&nbsp; {sp_pass}/{len(tasks)} passed</div>",
+        ]
+        for r in tasks:
+            cls = "pass" if r["passed"] else "fail"
+            badge = "PASS" if r["passed"] else "FAIL"
+            out += [
+                f"<div class='card {cls}'>",
+                "<div class='card-head'>",
+                f"<span class='badge {cls}'>{badge}</span>",
+                f"<span class='task-id'>{html.escape(r['id'])}</span>",
+                "</div>",
+                f"<div class='task-desc'>{html.escape(r['description'])}</div>",
+            ]
+            if "error" in r:
+                out.append(f"<div class='error-box'>{html.escape(r['error'][:600])}</div>")
+            else:
+                out += [
+                    "<div class='metrics-row'>",
+                    f"<span>model: {html.escape(r['model'])}</span>",
+                    f"<span>⏱ {r['elapsed_s']}s</span>",
+                    f"<span>↑ {r['input_tokens']:,} / ↓ {r['output_tokens']:,} tokens</span>",
+                    "</div>",
+                    "<div class='grades'>",
+                ]
+                for g in r["grades"]:
+                    gcls = "gpass" if g["score"] == 1.0 else "gfail"
+                    icon = "✓" if g["score"] == 1.0 else "✗"
+                    check_short = g["check"] if len(g["check"]) <= 90 else g["check"][:90] + "…"
+                    out += [
+                        f"<div class='grade {gcls}'>",
+                        f"<span class='icon'>{icon}</span>",
+                        f"<span class='gtype'>{html.escape(g['type'])}</span>",
+                        f"<span class='greason'>{html.escape(g['reason'])}</span>",
+                        f"<span class='gcheck'>— {html.escape(check_short)}</span>",
+                        "</div>",
+                    ]
+                out.append("</div>")
+                out += [
+                    "<details><summary>Show response</summary>",
+                    f"<pre>{html.escape(r['final_text'])}</pre>",
+                    "</details>",
+                ]
+            out.append("</div>")
+        out.append("</div>")
+
+    out += ["</div></body></html>"]
+    return "\n".join(out)
 
 
 def main() -> None:
@@ -349,28 +564,25 @@ def main() -> None:
         raise SystemExit("Set ANTHROPIC_API_KEY before running.")
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"Running {len(TASKS)} specialist eval task(s)...")
-    eval_result = run_eval()
+    print(f"Running {len(TASKS)} tasks across {len(SPECIALIST_LABELS)} specialists…")
+    data = run_eval()
 
     ts = time.strftime("%Y%m%d_%H%M%S")
     json_path = RESULTS_DIR / f"eval_{ts}.json"
     html_path = RESULTS_DIR / f"eval_{ts}.html"
-    json_path.write_text(json.dumps(eval_result, indent=2), encoding="utf-8")
-    html_path.write_text(render_html(eval_result), encoding="utf-8")
+    json_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    html_path.write_text(render_html(data), encoding="utf-8")
 
-    print(
-        f"\n{eval_result['num_passed']}/{eval_result['num_tasks']} passed"
-        f"  ({100 * eval_result['num_passed'] / eval_result['num_tasks']:.0f}%)"
-    )
-    for r in eval_result["results"]:
+    print(f"\n{data['num_passed']}/{data['num_tasks']} passed ({100*data['num_passed']/data['num_tasks']:.0f}%)")
+    for r in data["results"]:
         mark = "PASS" if r["passed"] else "FAIL"
-        print(f"  [{mark}] {r['task_id']}")
+        print(f"  [{mark}] {r['id']}")
         for g in r["grades"]:
             tick = "+" if g["score"] == 1.0 else "-"
             print(f"      {tick} [{g['type']}] {g['reason'][:100]}")
 
-    print(f"\nJSON:  {json_path}")
-    print(f"HTML:  {html_path}")
+    print(f"\nHTML: {html_path}")
+    print(f"JSON: {json_path}")
 
 
 if __name__ == "__main__":
