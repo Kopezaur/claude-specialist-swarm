@@ -1,0 +1,29 @@
+I've read the RFP. Multiple non-starters jumped out: uncapped liability, MFN clause, 35% discount (past wins max 28%), no escalators over 5 years, 99.99% SLA with instant-kill termination, Net 90, IP assignment, unlimited audit. I'll send all four specialists their briefs in parallel now.All four specialists running in parallel. Ending turn to wait for replies.Tech fit in — strong (11/11 FULL, lead with Power BI, 24-week migration, bundle 99.99% into multi-region). Holding for the other three.Legal in — 4 blockers (liability, audit, SLA, IP), 1 BLOCKER on MFN, all with concrete counters. Waiting on Pricing and Competitive Intel.Competitive in — Microsoft Fabric is the primary threat (Azure/E5 narrative), Databricks is the price-war risk, Initech is the killer reference. Waiting on Pricing.All four specialists in. Time to reconcile and build the deck.
+
+**Key reconciliations:**
+- **SLA conflict (Tech vs Legal):** Tech says we CAN commit 99.99% via multi-region active-active add-on. Legal says BLOCKER on the *remedy* (immediate termination on any miss). Resolution: offer 99.99% bundled in multi-region SKU, but replace kill-switch remedy with service credits + 3-consecutive-month termination trigger.
+- **Discount:** Pricing says 22% open / 25% ceiling. Their 35% ask is a walk-away above our band.
+- **Liability/MFN/IP/Audit:** Hard blockers per Legal — non-negotiable counters baked into Section 8.
+- **Implementation:** 24-week per Tech, lands Jan 2027 with 12-month buffer to Teradata decom deadline.
+
+Now building the docx.Build succeeded, branding checks passed. Copying to outputs.Deal Desk run complete. Final deliverable shipped.
+
+**File:** `/mnt/session/outputs/hogwarts-proposal-v3.docx` (357 KB)
+
+**Doc stats:** 8 sections (cover, TOC, exec summary, understanding, approach, commercials, timeline, why us, appendix), 23 headings, 8 branded tables, 4 charts (capability fit, approach diagram, cost breakdown, Gantt timeline). Footer carries "Harry Potter's Crew · Prepared for Hogwarts · Confidential · Page X of Y" — validated post-save.
+
+**Key positions baked in (where specialists were reconciled):**
+
+| Topic | Position |
+|---|---|
+| Y1 ACV | $875K list, 22% open / **25% ceiling** with reference commitment |
+| 5-yr TCV | $3.62M at recommended terms, 3% fixed escalator |
+| SLA | **99.99% committed** (bundled into multi-region SKU since Acme needs active-active anyway) — but remedy = service credits, **not** the RFP's instant-termination kill switch |
+| Implementation | 24 weeks, lands Jan 2027, **12-month buffer** to Teradata decom deadline |
+| Power BI | Led as #1 differentiator (Initech precedent, DirectQuery adapter at 600-user scale) |
+| Hard blockers | Uncapped liability + reg fines, MFN, instant-term SLA, full IP assignment, no-notice audits — each with a specific signable counter |
+| Walk-away | Documented: any combination of 35% discount + MFN + Net 90 + zero escalator + Y1 termination-for-convenience |
+
+**Conflicts explicitly reconciled, not smoothed over:**
+- Tech said "we can do 99.99%"; Legal said "BLOCKER." Both were right — they were arguing about different things (commitment vs. remedy). The doc commits 99.99% AND counters the remedy structure.
+- Pricing's $875K assumes the multi-region active-active SKU; we bundled the $80–120K 99.99% premium rather than line-iteming it, per Tech's recommendation. Documented in Assumption 8.2.

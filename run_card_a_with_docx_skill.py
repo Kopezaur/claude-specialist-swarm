@@ -42,7 +42,7 @@ CHART_PALETTE = ["#7F0909", "#FFC500", "#3C0000", "#B8860B", "#FFF8E7"]
 
 OUTPUT_DIR = Path(__file__).parent / "outputs"
 FIGURES_DIR = OUTPUT_DIR / "figures"
-DOC_PATH = OUTPUT_DIR / "hogwarts-proposal-v2.docx"
+DOC_PATH = OUTPUT_DIR / "hogwarts-proposal-v3.docx"
 
 
 # ---------------------------------------------------------------------------
